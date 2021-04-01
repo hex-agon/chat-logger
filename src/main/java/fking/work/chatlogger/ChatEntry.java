@@ -2,6 +2,7 @@ package fking.work.chatlogger;
 
 import lombok.ToString;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.client.util.Text;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -22,6 +23,6 @@ public class ChatEntry {
     }
 
     public static ChatEntry from(String friendsChatOwner, ChatMessage chatMessage) {
-        return new ChatEntry(friendsChatOwner, chatMessage.getName(), chatMessage.getMessage());
+        return new ChatEntry(friendsChatOwner, Text.standardize(chatMessage.getName()), Text.standardize(chatMessage.getMessage()));
     }
 }
