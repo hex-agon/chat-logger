@@ -50,6 +50,9 @@ The plugin uses the following structure to submit messages:
 | sender | The player that sent the message |
 | message | The message |
 
+The plugin will also always submit an `Authorization` header, the value `none` will be submitted if nothing is configured by the user.
+This header **should** be used for user authentication.
+
 ### Updates
 
 ##### V1.2

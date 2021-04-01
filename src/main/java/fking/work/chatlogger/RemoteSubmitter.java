@@ -84,8 +84,8 @@ public class RemoteSubmitter {
             Failsafe.with(BREAKER).run(() -> {
                 String authorization = config.remoteEndpointAuthorization();
 
-                if (authorization == null) {
-                    authorization = "";
+                if (authorization == null || authorization.trim().isEmpty()) {
+                    authorization = "none";
                 }
                 Request request = new Builder()
                         .url(config.remoteEndpoint())
