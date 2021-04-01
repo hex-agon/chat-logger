@@ -42,7 +42,7 @@ public class RemoteSubmitter {
     private final ConcurrentLinkedDeque<ChatEntry> queuedEntries = new ConcurrentLinkedDeque<>();
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-            .connectTimeout(2, TimeUnit.SECONDS)
+            .connectTimeout(5, TimeUnit.SECONDS)
             .writeTimeout(3, TimeUnit.SECONDS)
             .readTimeout(2, TimeUnit.SECONDS)
             .build();
