@@ -10,9 +10,11 @@ repositories {
     mavenCentral()
 }
 
-def runeLiteVersion = '1.7.1'
+def runeLiteVersion = '1.7.3.1'
 
 dependencies {
+    implementation group: 'net.jodah', name: 'failsafe', version: '2.4.0'
+
     compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
 
     compileOnly 'org.projectlombok:lombok:1.18.4'
