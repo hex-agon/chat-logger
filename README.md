@@ -47,7 +47,7 @@ The plugin uses the following structure to submit messages:
 
 | field | description |
 | --- | --- |
-| timestamp | An ISO-8601 compatible timestamp of when the message was received by the client |
+| timestamp | An ISO-8601 compatible UTC timestamp of when the message was received by the client |
 | friendChat | The name of the friend chat owner that the player is in |
 | sender | The player that sent the message |
 | message | The message |
