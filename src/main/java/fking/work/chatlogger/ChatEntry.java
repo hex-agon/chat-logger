@@ -23,6 +23,6 @@ public class ChatEntry {
     }
 
     public static ChatEntry from(String friendsChatOwner, ChatMessage chatMessage) {
-        return new ChatEntry(friendsChatOwner, Text.standardize(chatMessage.getName()), Text.standardize(chatMessage.getMessage()));
+        return new ChatEntry(Text.standardize(friendsChatOwner), Text.standardize(chatMessage.getName()), chatMessage.getMessage());
     }
 }
