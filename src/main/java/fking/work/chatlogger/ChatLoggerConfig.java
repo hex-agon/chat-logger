@@ -3,9 +3,22 @@ package fking.work.chatlogger;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ConfigSection;
 
-@ConfigGroup("chatlogger")
+import static fking.work.chatlogger.ChatLoggerConfig.*;
+
+@ConfigGroup(GROUP_NAME)
 public interface ChatLoggerConfig extends Config {
+
+    String GROUP_NAME = "chatlogger";
+
+    @ConfigSection(
+            name = "Remote Submission",
+            description = "Settings for remote submission of chat messages",
+            position = 0,
+            closedByDefault = true
+    )
+    String sectionRemote = "remote";
 
     @ConfigItem(
             keyName = "public",
@@ -32,5 +45,35 @@ public interface ChatLoggerConfig extends Config {
     )
     default boolean logFriendsChat() {
         return true;
+    }
+
+    @ConfigItem(
+            keyName = "remotelogfriends",
+            name = "Remote Friends Chat (Clan Chat)",
+            description = "Enables remote submission of the friends chat",
+            section = sectionRemote
+    )
+    default boolean remoteSubmitLogFriendsChat() {
+        return false;
+    }
+
+    @ConfigItem(
+            keyName = "remoteendpoint",
+            name = "Endpoint",
+            description = "The endpoint that messages will be submitted to",
+            section = sectionRemote
+    )
+    default String remoteEndpoint() {
+        return null;
+    }
+
+    @ConfigItem(
+            keyName = "remoteauthorization",
+            name = "Authorization",
+            description = "The Authorization header value",
+            section = sectionRemote
+    )
+    default String remoteEndpointAuthorization() {
+        return null;
     }
 }

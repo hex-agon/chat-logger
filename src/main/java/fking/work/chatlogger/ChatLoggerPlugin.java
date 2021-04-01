@@ -9,13 +9,18 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
+import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Client;
+import net.runelite.api.FriendsChatManager;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 @PluginDescriptor(name = "Chat Logger", description = "Logs chat messages to a file")
 public class ChatLoggerPlugin extends Plugin {
 
@@ -24,6 +29,10 @@ public class ChatLoggerPlugin extends Plugin {
     @Inject
     private ChatLoggerConfig config;
 
+    @Inject
+    private Client client;
+
+    private RemoteSubmitter remoteSubmitter;
     private Logger publicChatLogger;
     private Logger privateChatLogger;
     private Logger friendsChatLogger;
@@ -38,6 +47,40 @@ public class ChatLoggerPlugin extends Plugin {
         publicChatLogger = setupLogger("PublicChatLogger", "public");
         privateChatLogger = setupLogger("PrivateChatLogger", "private");
         friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
+        startRemoteSubmitter();
+    }
+
+    @Override
+    protected void shutDown() {
+        shutdownRemoteSubmitter();
+    }
+
+    private void startRemoteSubmitter() {
+        if (config.remoteSubmitLogFriendsChat()) {
+
+            if (remoteSubmitter != null) {
+                log.debug("Shutting down previous remoteSubmitter...");
+                shutdownRemoteSubmitter();
+            }
+            log.debug("Starting a new remoteSubmitter...");
+            remoteSubmitter = RemoteSubmitter.create(config);
+            remoteSubmitter.initialize();
+        }
+    }
+
+    private void shutdownRemoteSubmitter() {
+        if (remoteSubmitter != null) {
+            remoteSubmitter.shutdown();
+            remoteSubmitter = null;
+        }
+    }
+
+    @Subscribe
+    public void onConfigChanged(ConfigChanged event) {
+        if (!ChatLoggerConfig.GROUP_NAME.equals(event.getGroup())) {
+            return;
+        }
+        startRemoteSubmitter();
     }
 
     @Subscribe
@@ -47,6 +90,16 @@ public class ChatLoggerPlugin extends Plugin {
             case FRIENDSCHAT:
                 if (config.logFriendsChat()) {
                     friendsChatLogger.info("[{}] {}: {}", event.getSender(), event.getName(), event.getMessage());
+                }
+
+                if (config.remoteSubmitLogFriendsChat() && remoteSubmitter != null) {
+                    FriendsChatManager friendsChatManager = client.getFriendsChatManager();
+
+                    if (friendsChatManager == null) {
+                        return;
+                    }
+                    String owner = friendsChatManager.getOwner();
+                    remoteSubmitter.queue(ChatEntry.from(owner, event));
                 }
                 break;
             case PRIVATECHAT:
