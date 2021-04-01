@@ -101,7 +101,9 @@ public class RemoteSubmitter {
                 }
             });
         } catch (Exception e) {
-            log.warn("Failed to submit chat entries: {}", e.getMessage());
+            if (!BREAKER.isOpen()) {
+                log.warn("Failed to submit chat entries: {}", e.getMessage());
+            }
         }
     }
 
