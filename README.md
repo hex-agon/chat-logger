@@ -28,6 +28,8 @@ The plugin submits chat messages every 5 seconds, multiple chat entries can be s
 It also uses a circuit breaker to avoid making requests to a non-functional endpoint.
 The circuit breaker opens if more than 3 requests fail within 30 seconds and will switch to half-open after 5 minutes.
 
+**It is also worth nothing that multiple clients may submit the same message, deduplication should be done server side!**
+
 #### Payload structure
 
 The plugin uses the following structure to submit messages:
