@@ -37,6 +37,7 @@ The plugin uses the following structure to submit messages:
 ```json
 [
   {
+    "id": 1417339442575,
     "timestamp": "2021-01-01T00:00:00.000000000Z",
     "friendChat": "player name",
     "sender": "player name",
@@ -47,6 +48,7 @@ The plugin uses the following structure to submit messages:
 
 | field | description |
 | --- | --- |
+| id | A message identifier that can be used to de-dupe incoming messages from multiple sources |
 | timestamp | An ISO-8601 compatible UTC timestamp of when the message was received by the client |
 | friendChat | The name of the friend chat owner that the player is in |
 | sender | The player that sent the message |
