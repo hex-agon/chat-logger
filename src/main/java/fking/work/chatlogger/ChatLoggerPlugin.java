@@ -75,6 +75,15 @@ public class ChatLoggerPlugin extends Plugin {
         }
     }
 
+    private long getLatestCrossWorldMessageId() {
+        long[] crossWorldMessageIds = client.getCrossWorldMessageIds();
+        int index = client.getCrossWorldMessageIdsIndex() - 1;
+        if (index == -1) {
+            index = crossWorldMessageIds.length - 1;
+        }
+        return crossWorldMessageIds[index];
+    }
+
     @Subscribe
     public void onConfigChanged(ConfigChanged event) {
         if (!ChatLoggerConfig.GROUP_NAME.equals(event.getGroup())) {
@@ -88,6 +97,9 @@ public class ChatLoggerPlugin extends Plugin {
         switch (event.getType()) {
 
             case FRIENDSCHAT:
+                long messageId = getLatestCrossWorldMessageId();
+                System.out.println(client.getCrossWorldMessageIdsIndex());
+                log.info("[{}] {}: {}, world={}, sequence={}", event.getSender(), event.getName(), event.getMessage(), messageId >> 32, messageId & 0xFFFFFFFFL);
                 if (config.logFriendsChat()) {
                     friendsChatLogger.info("[{}] {}: {}", event.getSender(), event.getName(), event.getMessage());
                 }
@@ -99,7 +111,7 @@ public class ChatLoggerPlugin extends Plugin {
                         return;
                     }
                     String owner = friendsChatManager.getOwner();
-                    remoteSubmitter.queue(ChatEntry.from(owner, event));
+                    remoteSubmitter.queue(ChatEntry.from(messageId, owner, event));
                 }
                 break;
             case PRIVATECHAT:
