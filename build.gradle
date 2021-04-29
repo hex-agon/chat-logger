@@ -21,6 +21,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
 
     testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.7.1'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.9.0'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 group = 'fking.work.chatlogger'
