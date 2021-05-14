@@ -89,7 +89,6 @@ public class ChatLoggerPlugin extends Plugin {
 
             case FRIENDSCHAT:
                 long messageId = CrossWorldMessages.latestId(client);
-                System.out.println(client.getCrossWorldMessageIdsIndex());
                 log.info("[{}] {}: {}, world={}, sequence={}", event.getSender(), event.getName(), event.getMessage(), messageId >> 32, messageId & 0xFFFFFFFFL);
                 if (config.logFriendsChat()) {
                     friendsChatLogger.info("[{}] {}: {}", event.getSender(), event.getName(), event.getMessage());
