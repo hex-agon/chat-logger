@@ -107,6 +107,7 @@ public class ChatLoggerPlugin extends Plugin {
                 break;
             case PRIVATECHAT:
             case MODPRIVATECHAT:
+            case PRIVATECHATOUT:
                 if (config.logPrivateChat()) {
                     privateChatLogger.info("{}: {}", event.getName(), event.getMessage());
                 }
