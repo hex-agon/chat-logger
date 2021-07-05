@@ -40,7 +40,7 @@ public interface ChatLoggerConfig extends Config {
 
     @ConfigItem(
             keyName = "friends",
-            name = "Friends Chat (Clan Chat)",
+            name = "Friends Chat (Channel Chat)",
             description = "Enables logging of the friends chat"
     )
     default boolean logFriendsChat() {
@@ -49,12 +49,21 @@ public interface ChatLoggerConfig extends Config {
 
     @ConfigItem(
             keyName = "remotelogfriends",
-            name = "Remote Friends Chat (Clan Chat)",
+            name = "Remote Friends Chat (Channel Chat)",
             description = "Enables remote submission of the friends chat",
             section = sectionRemote
     )
     default boolean remoteSubmitLogFriendsChat() {
         return false;
+    }
+
+    @ConfigItem(
+            keyName = "clan",
+            name = "Clan Chat",
+            description = "Enables logging of the clan chat"
+    )
+    default boolean logClanChat() {
+        return true;
     }
 
     @ConfigItem(
