@@ -128,7 +128,8 @@ public class ChatLoggerPlugin extends Plugin {
             case MODPRIVATECHAT:
             case PRIVATECHATOUT:
                 if (config.logPrivateChat()) {
-                    privateChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                    String predicate = event.getType() == ChatMessageType.PRIVATECHATOUT ? "To" : "From";
+                    privateChatLogger.info("{} {}: {}", predicate, event.getName(), event.getMessage());
                 }
                 break;
             case MODCHAT:
