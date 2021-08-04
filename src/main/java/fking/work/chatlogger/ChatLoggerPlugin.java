@@ -9,9 +9,12 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
+import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.FriendsChatManager;
+import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -58,7 +61,7 @@ public class ChatLoggerPlugin extends Plugin {
     }
 
     private void startRemoteSubmitter() {
-        if (config.remoteSubmitLogFriendsChat()) {
+        if (config.remoteSubmitLogFriendsChat() || config.remoteSubmitLogClanChat()) {
 
             if (remoteSubmitter != null) {
                 log.debug("Shutting down previous remoteSubmitter...");
@@ -90,7 +93,6 @@ public class ChatLoggerPlugin extends Plugin {
         switch (event.getType()) {
 
             case FRIENDSCHAT:
-                long messageId = CrossWorldMessages.latestId(client);
                 if (config.logFriendsChat()) {
                     friendsChatLogger.info("[{}] {}: {}", event.getSender(), event.getName(), event.getMessage());
                 }
@@ -102,13 +104,25 @@ public class ChatLoggerPlugin extends Plugin {
                         return;
                     }
                     String owner = friendsChatManager.getOwner();
-                    remoteSubmitter.queue(ChatEntry.from(messageId, owner, event));
+                    long messageId = CrossWorldMessages.latestId(client);
+                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.FRIENDS, owner, event));
                 }
                 break;
             case CLAN_CHAT:
             case CLAN_GUEST_CHAT:
                 if (config.logClanChat()) {
                     clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                }
+
+                if (config.remoteSubmitLogClanChat() && remoteSubmitter != null) {
+                    ClanChannel clanChannel = event.getType() == ChatMessageType.CLAN_CHAT ? client.getClanChannel() : client.getGuestClanChannel();
+
+                    if (clanChannel == null) {
+                        return;
+                    }
+                    String name = clanChannel.getName();
+                    long messageId = CrossWorldMessages.latestId(client);
+                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, name, event));
                 }
             case PRIVATECHAT:
             case MODPRIVATECHAT:
@@ -124,6 +138,11 @@ public class ChatLoggerPlugin extends Plugin {
                 }
                 break;
         }
+    }
+
+    private void submitToRemote(String channelName, ChatMessage event) {
+        long messageId = CrossWorldMessages.latestId(client);
+        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, event));
     }
 
     private Logger setupLogger(String loggerName, String subFolder) {

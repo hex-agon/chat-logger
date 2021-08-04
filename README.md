@@ -11,7 +11,8 @@ The plugin uses the following directory structure:
 └── chatlogs/
     ├── friends/
     ├── private/
-    └── public/
+    ├── public/
+    └── clan/
 ```
 
 Note that the **friends** folder contains the **clan chat** logs and the **private** folder contains **private messages** from friends.
@@ -39,7 +40,8 @@ The plugin uses the following structure to submit messages:
   {
     "id": 1417339442575,
     "timestamp": "2021-01-01T00:00:00.000000000Z",
-    "friendChat": "player name",
+    "chatType": "FRIENDS",
+    "chatName": "player name",
     "sender": "player name",
     "message": "Dasdasd"
   }
@@ -50,7 +52,8 @@ The plugin uses the following structure to submit messages:
 | --- | --- |
 | id | A message identifier that can be used to de-dupe incoming messages from multiple sources |
 | timestamp | An ISO-8601 compatible UTC timestamp of when the message was received by the client |
-| friendChat | The name of the friend chat owner that the player is in |
+| chatType | The type of the chat that the message was sent in, possible values `FRIENDS` or `CLAN` (includes guest clan) |
+| chatName | The name of the chat that the message was sent in |
 | sender | The player that sent the message |
 | message | The message |
 

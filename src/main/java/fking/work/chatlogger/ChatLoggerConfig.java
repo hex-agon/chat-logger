@@ -67,6 +67,16 @@ public interface ChatLoggerConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "remotelogclan",
+            name = "Remote Clan Chat",
+            description = "Enables remote submission of the clan chat",
+            section = sectionRemote
+    )
+    default boolean remoteSubmitLogClanChat() {
+        return false;
+    }
+
+    @ConfigItem(
             keyName = "remoteendpoint",
             name = "Endpoint",
             description = "The endpoint that messages will be submitted to",

@@ -12,19 +12,26 @@ public class ChatEntry {
 
     private final ZonedDateTime timestamp;
     private final long id;
-    private final String friendChat;
+    private final ChatType chatType;
+    private final String chatName;
     private final String sender;
     private final String message;
 
-    private ChatEntry(long id, String friendChat, String sender, String message) {
+    private ChatEntry(long id, ChatType chatType, String chatName, String sender, String message) {
         this.id = id;
+        this.chatType = chatType;
         this.timestamp = ZonedDateTime.now(Clock.systemUTC());
-        this.friendChat = friendChat;
+        this.chatName = chatName;
         this.sender = sender;
         this.message = message;
     }
 
-    public static ChatEntry from(long messageId, String friendsChatOwner, ChatMessage chatMessage) {
-        return new ChatEntry(messageId, Text.standardize(friendsChatOwner), Text.standardize(chatMessage.getName()), chatMessage.getMessage());
+    public static ChatEntry from(long messageId, ChatType chatType, String chatName, ChatMessage chatMessage) {
+        return new ChatEntry(messageId, chatType, Text.standardize(chatName), Text.standardize(chatMessage.getName()), chatMessage.getMessage());
+    }
+
+    public enum ChatType {
+        FRIENDS,
+        CLAN
     }
 }
