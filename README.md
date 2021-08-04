@@ -62,6 +62,11 @@ This header **should** be used for user authentication.
 
 ### Updates
 
+##### V1.4
+- Clan chat system support
+- Remote submission of clan chat messages
+- Added from/to to private message logs
+
 ##### V1.2
 - Added remote submission of friends chat messages
 
