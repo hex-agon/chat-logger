@@ -48,7 +48,7 @@ public class ChatLoggerPlugin extends Plugin {
         publicChatLogger = setupLogger("PublicChatLogger", "public");
         privateChatLogger = setupLogger("PrivateChatLogger", "private");
         friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
-        friendsChatLogger = setupLogger("ClanChatLogger", "clan");
+        clanChatLogger = setupLogger("ClanChatLogger", "clan");
         startRemoteSubmitter();
     }
 
@@ -107,8 +107,6 @@ public class ChatLoggerPlugin extends Plugin {
                 break;
             case CLAN_CHAT:
             case CLAN_GUEST_CHAT:
-            case CLAN_MESSAGE:
-            case CLAN_GUEST_MESSAGE:
                 if (config.logClanChat()) {
                     clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
                 }
