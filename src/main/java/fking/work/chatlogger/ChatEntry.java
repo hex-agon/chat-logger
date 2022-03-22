@@ -27,7 +27,7 @@ public class ChatEntry {
     }
 
     public static ChatEntry from(long messageId, ChatType chatType, String chatName, ChatMessage chatMessage) {
-		String sender = chatMessage.getName().isEmpty() ? chatName : Text.removeFormattingTags(chatMessage.getName());
+        String sender = chatMessage.getName().isEmpty() ? chatName : Text.removeFormattingTags(chatMessage.getName());
         return new ChatEntry(messageId, chatType, Text.standardize(chatName), sender, chatMessage.getMessage());
     }
 
