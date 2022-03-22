@@ -111,12 +111,8 @@ public class ChatLoggerPlugin extends Plugin {
             case CLAN_CHAT:
             case CLAN_GUEST_CHAT:
             case CLAN_MESSAGE:
-                if(event.getMessage().contains("To talk in your clan's channel")){
-                    return;
-                }
-
                 if (config.logClanChat()) {
-                    if(event.getType() == ChatMessageType.CLAN_MESSAGE){
+                    if(event.getType() == ChatMessageType.CLAN_MESSAGE) {
                         clanChatLogger.info("{}",event.getMessage());
                     }
                     else{
