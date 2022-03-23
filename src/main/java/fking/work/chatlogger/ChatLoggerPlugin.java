@@ -112,10 +112,9 @@ public class ChatLoggerPlugin extends Plugin {
             case CLAN_GUEST_CHAT:
             case CLAN_MESSAGE:
                 if (config.logClanChat()) {
-                    if(event.getType() == ChatMessageType.CLAN_MESSAGE) {
+                    if (event.getType() == ChatMessageType.CLAN_MESSAGE) {
                         clanChatLogger.info("{}",event.getMessage());
-                    }
-                    else{
+                    } else {
                         clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
                     }
                 }
