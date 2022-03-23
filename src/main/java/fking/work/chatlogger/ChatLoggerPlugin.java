@@ -110,12 +110,17 @@ public class ChatLoggerPlugin extends Plugin {
                 break;
             case CLAN_CHAT:
             case CLAN_GUEST_CHAT:
+            case CLAN_MESSAGE:
                 if (config.logClanChat()) {
-                    clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                    if (event.getType() == ChatMessageType.CLAN_MESSAGE) {
+                        clanChatLogger.info("{}",event.getMessage());
+                    } else {
+                        clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                    }
                 }
 
                 if (config.remoteSubmitLogClanChat() && remoteSubmitter != null) {
-                    ClanChannel clanChannel = event.getType() == ChatMessageType.CLAN_CHAT ? client.getClanChannel() : client.getGuestClanChannel();
+                    ClanChannel clanChannel = event.getType() == ChatMessageType.CLAN_CHAT || event.getType() == ChatMessageType.CLAN_MESSAGE ? client.getClanChannel() : client.getGuestClanChannel();
 
                     if (clanChannel == null) {
                         return;
