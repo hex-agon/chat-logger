@@ -11,16 +11,16 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.FriendsChatManager;
+import net.runelite.api.*;
 import net.runelite.api.clan.ClanChannel;
+import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.util.Text;
 import org.slf4j.LoggerFactory;
 
 @Slf4j
@@ -80,6 +80,44 @@ public class ChatLoggerPlugin extends Plugin {
         }
     }
 
+    //Taken from WorldHopperPlugin
+    private FriendsChatMember getFriendsChatMemberFromName(String name)
+    {
+        String cleanName = Text.removeTags(name);
+
+        FriendsChatManager friendsChatManager = client.getFriendsChatManager();
+        if (friendsChatManager != null)
+        {
+            return friendsChatManager.findByName(cleanName);
+        }
+
+        return null;
+    }
+
+    private ClanChannelMember getClanChannelMemberFromName(String name, String clanName) {
+        String cleanName = Text.removeTags(name);
+
+        ClanChannel clanChannel = client.getClanChannel();
+        if (clanChannel != null)
+        {
+            ClanChannelMember member = clanChannel.findMember(cleanName);
+            if (member != null && clanChannel.getName().equals(clanName)) {
+                return member;
+            }
+        }
+
+        clanChannel = client.getGuestClanChannel();
+        if (clanChannel != null)
+        {
+            ClanChannelMember member = clanChannel.findMember(cleanName);
+            if (member != null && clanChannel.getName().equals(clanName)) {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
     @Subscribe
     public void onConfigChanged(ConfigChanged event) {
         if (!ChatLoggerConfig.GROUP_NAME.equals(event.getGroup())) {
@@ -105,7 +143,12 @@ public class ChatLoggerPlugin extends Plugin {
                     }
                     String owner = friendsChatManager.getOwner();
                     long messageId = CrossWorldMessages.latestId(client);
-                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.FRIENDS, owner, event));
+                    int rank = -2; // -1 is registered as guest in friends rank
+                    FriendsChatMember member = getFriendsChatMemberFromName(event.getName());
+                    if (member != null) {
+                        rank = member.getRank().getValue();
+                    }
+                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.FRIENDS, owner, rank, event));
                 }
                 break;
             case CLAN_CHAT:
@@ -127,7 +170,12 @@ public class ChatLoggerPlugin extends Plugin {
                     }
                     String name = clanChannel.getName();
                     long messageId = CrossWorldMessages.latestId(client);
-                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, name, event));
+                    int rank = -2; // -1 is registered as guest in friends rank
+                    ClanChannelMember member = getClanChannelMemberFromName(event.getName(), name);
+                    if (member != null) {
+                        rank = member.getRank().ordinal();
+                    }
+                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, name, rank, event));
                 }
             case PRIVATECHAT:
             case MODPRIVATECHAT:
@@ -148,7 +196,7 @@ public class ChatLoggerPlugin extends Plugin {
 
     private void submitToRemote(String channelName, ChatMessage event) {
         long messageId = CrossWorldMessages.latestId(client);
-        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, event));
+        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, -2, event));
     }
 
     private Logger setupLogger(String loggerName, String subFolder) {

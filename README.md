@@ -43,24 +43,29 @@ The plugin uses the following structure to submit messages:
     "chatType": "FRIENDS",
     "chatName": "player name",
     "sender": "player name",
+    "rank": -1,
     "message": "Dasdasd"
   }
 ]
 ```
 
-| field | description |
-| --- | --- |
-| id | A message identifier that can be used to de-dupe incoming messages from multiple sources |
-| timestamp | An ISO-8601 compatible UTC timestamp of when the message was received by the client |
-| chatType | The type of the chat that the message was sent in, possible values `FRIENDS` or `CLAN` (includes guest clan) |
-| chatName | The name of the chat that the message was sent in |
-| sender | The player that sent the message |
-| message | The message |
+| field     | description                                                                                                                                                                                                                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id        | A message identifier that can be used to de-dupe incoming messages from multiple sources                                                                                                                                                                                                                                       |
+| timestamp | An ISO-8601 compatible UTC timestamp of when the message was received by the client                                                                                                                                                                                                                                            |
+| chatType  | The type of the chat that the message was sent in, possible values `FRIENDS` or `CLAN` (includes guest clan)                                                                                                                                                                                                                   |
+| chatName  | The name of the chat that the message was sent in                                                                                                                                                                                                                                                                              |
+| sender    | The player that sent the message                                                                                                                                                                                                                                                                                               |
+| rank      | The ordinal representation of the sender's rank. (see [Clan Rank](https://github.com/runelite/runelite/blob/master/runelite-api/src/main/java/net/runelite/api/clan/ClanRank.java) and [Friends Chat Rank](https://github.com/runelite/runelite/blob/master/runelite-api/src/main/java/net/runelite/api/FriendsChatRank.java)) |
+| message   | The message                                                                                                                                                                                                                                                                                                                    |
 
 The plugin will also always submit an `Authorization` header, the value `none` will be submitted if nothing is configured by the user.
 This header **should** be used for user authentication.
 
 ### Updates
+
+##### V1.5
+- Friends/Clan rank added to remote submission
 
 ##### V1.4
 - Clan chat system support
