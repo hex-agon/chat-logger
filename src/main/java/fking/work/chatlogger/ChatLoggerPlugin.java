@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 public class ChatLoggerPlugin extends Plugin {
 
     private static final String BASE_DIRECTORY = System.getProperty("user.home") + "/.runelite/chatlogs/";
+    private static final int CHANNEL_UNRANKED = -2;
 
     @Inject
     private ChatLoggerConfig config;
@@ -80,42 +81,34 @@ public class ChatLoggerPlugin extends Plugin {
         }
     }
 
-    //Taken from WorldHopperPlugin
-    private FriendsChatMember getFriendsChatMemberFromName(String name)
-    {
-        String cleanName = Text.removeTags(name);
-
+    private int friendsChatMemberRank(String name) {
         FriendsChatManager friendsChatManager = client.getFriendsChatManager();
-        if (friendsChatManager != null)
-        {
-            return friendsChatManager.findByName(cleanName);
+        if (friendsChatManager != null) {
+            FriendsChatMember member = friendsChatManager.findByName(Text.removeTags(name));
+            return member != null ? member.getRank().getValue() : CHANNEL_UNRANKED;
         }
-
-        return null;
+        return CHANNEL_UNRANKED;
     }
 
-    private ClanChannelMember getClanChannelMemberFromName(String name, String clanName) {
+    private int clanChannelMemberRank(String name, String clanName) {
         String cleanName = Text.removeTags(name);
-
         ClanChannel clanChannel = client.getClanChannel();
-        if (clanChannel != null)
-        {
+
+        if (clanChannel != null) {
             ClanChannelMember member = clanChannel.findMember(cleanName);
             if (member != null && clanChannel.getName().equals(clanName)) {
-                return member;
+                return member.getRank().ordinal();
             }
         }
-
         clanChannel = client.getGuestClanChannel();
-        if (clanChannel != null)
-        {
+
+        if (clanChannel != null) {
             ClanChannelMember member = clanChannel.findMember(cleanName);
             if (member != null && clanChannel.getName().equals(clanName)) {
-                return member;
+                return member.getRank().ordinal();
             }
         }
-
-        return null;
+        return CHANNEL_UNRANKED;
     }
 
     @Subscribe
@@ -142,13 +135,7 @@ public class ChatLoggerPlugin extends Plugin {
                         return;
                     }
                     String owner = friendsChatManager.getOwner();
-                    long messageId = CrossWorldMessages.latestId(client);
-                    int rank = -2; // -1 is registered as guest in friends rank
-                    FriendsChatMember member = getFriendsChatMemberFromName(event.getName());
-                    if (member != null) {
-                        rank = member.getRank().getValue();
-                    }
-                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.FRIENDS, owner, rank, event));
+                    submitToRemote(owner, event, friendsChatMemberRank(event.getName()));
                 }
                 break;
             case CLAN_CHAT:
@@ -156,7 +143,7 @@ public class ChatLoggerPlugin extends Plugin {
             case CLAN_MESSAGE:
                 if (config.logClanChat()) {
                     if (event.getType() == ChatMessageType.CLAN_MESSAGE) {
-                        clanChatLogger.info("{}",event.getMessage());
+                        clanChatLogger.info("{}", event.getMessage());
                     } else {
                         clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
                     }
@@ -168,14 +155,8 @@ public class ChatLoggerPlugin extends Plugin {
                     if (clanChannel == null) {
                         return;
                     }
-                    String name = clanChannel.getName();
-                    long messageId = CrossWorldMessages.latestId(client);
-                    int rank = -2; // -1 is registered as guest in friends rank
-                    ClanChannelMember member = getClanChannelMemberFromName(event.getName(), name);
-                    if (member != null) {
-                        rank = member.getRank().ordinal();
-                    }
-                    remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, name, rank, event));
+                    String chatName = clanChannel.getName();
+                    submitToRemote(chatName, event, clanChannelMemberRank(event.getName(), chatName));
                 }
             case PRIVATECHAT:
             case MODPRIVATECHAT:
@@ -194,9 +175,9 @@ public class ChatLoggerPlugin extends Plugin {
         }
     }
 
-    private void submitToRemote(String channelName, ChatMessage event) {
+    private void submitToRemote(String channelName, ChatMessage event, int rank) {
         long messageId = CrossWorldMessages.latestId(client);
-        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, -2, event));
+        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, rank, event));
     }
 
     private Logger setupLogger(String loggerName, String subFolder) {
