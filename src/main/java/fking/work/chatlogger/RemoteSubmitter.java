@@ -1,7 +1,6 @@
 package fking.work.chatlogger;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.jodah.failsafe.CircuitBreaker;
 import net.jodah.failsafe.Failsafe;
@@ -29,10 +28,6 @@ public class RemoteSubmitter {
     private static final int MAX_ENTRIES_PER_TICK = 30;
     private static final int TICK_INTERVAL = 5;
 
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
-            .create();
-
     private static final CircuitBreaker<Object> BREAKER = new CircuitBreaker<>()
             .handle(IOException.class)
             .withDelay(Duration.ofMinutes(5))
@@ -44,14 +39,18 @@ public class RemoteSubmitter {
 
     private final ChatLoggerConfig config;
     private final OkHttpClient okHttpClient;
+    private final Gson gson;
 
-    private RemoteSubmitter(ChatLoggerConfig config, OkHttpClient okHttpClient) {
+    private RemoteSubmitter(ChatLoggerConfig config, OkHttpClient okHttpClient, Gson gson) {
         this.config = config;
         this.okHttpClient = okHttpClient;
+        this.gson = gson.newBuilder()
+                        .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
+                        .create();
     }
 
-    public static RemoteSubmitter create(ChatLoggerConfig config, OkHttpClient okHttpClient) {
-        return new RemoteSubmitter(config, okHttpClient);
+    public static RemoteSubmitter create(ChatLoggerConfig config, OkHttpClient okHttpClient, Gson gson) {
+        return new RemoteSubmitter(config, okHttpClient, gson);
     }
 
     private static void onHalfOpen() {
@@ -112,6 +111,6 @@ public class RemoteSubmitter {
             entries.add(queuedEntries.poll());
             count++;
         }
-        return RequestBody.create(APPLICATION_JSON, GSON.toJson(entries));
+        return RequestBody.create(APPLICATION_JSON, gson.toJson(entries));
     }
 }

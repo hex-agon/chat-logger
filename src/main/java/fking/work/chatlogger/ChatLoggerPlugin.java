@@ -7,6 +7,7 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import fking.work.chatlogger.ChatEntry.ChatType;
@@ -43,6 +44,9 @@ public class ChatLoggerPlugin extends Plugin {
     @Inject
     private OkHttpClient httpClient;
 
+    @Inject
+    private Gson gson;
+
     private RemoteSubmitter remoteSubmitter;
     private Logger publicChatLogger;
     private Logger privateChatLogger;
@@ -76,7 +80,7 @@ public class ChatLoggerPlugin extends Plugin {
                 shutdownRemoteSubmitter();
             }
             log.debug("Starting a new remoteSubmitter...");
-            remoteSubmitter = RemoteSubmitter.create(config, httpClient);
+            remoteSubmitter = RemoteSubmitter.create(config, httpClient, gson);
             remoteSubmitter.initialize();
         }
     }
