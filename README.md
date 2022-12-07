@@ -64,6 +64,9 @@ This header **should** be used for user authentication.
 
 ### Updates
 
+##### V1.6
+- Fixes private logs containing clan messages
+
 ##### V1.5
 - Friends/Clan rank added to remote submission
 

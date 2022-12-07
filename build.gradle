@@ -10,7 +10,7 @@ repositories {
     mavenCentral()
 }
 
-def runeLiteVersion = '1.8.21'
+def runeLiteVersion = 'latest.release'
 
 dependencies {
     implementation group: 'net.jodah', name: 'failsafe', version: '2.4.0'
