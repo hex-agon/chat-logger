@@ -41,20 +41,17 @@ public class RemoteSubmitter {
 
     private final ConcurrentLinkedDeque<ChatEntry> queuedEntries = new ConcurrentLinkedDeque<>();
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .writeTimeout(3, TimeUnit.SECONDS)
-            .readTimeout(2, TimeUnit.SECONDS)
-            .build();
 
     private final ChatLoggerConfig config;
+    private final OkHttpClient okHttpClient;
 
-    private RemoteSubmitter(ChatLoggerConfig config) {
+    private RemoteSubmitter(ChatLoggerConfig config, OkHttpClient okHttpClient) {
         this.config = config;
+        this.okHttpClient = okHttpClient;
     }
 
-    public static RemoteSubmitter create(ChatLoggerConfig config) {
-        return new RemoteSubmitter(config);
+    public static RemoteSubmitter create(ChatLoggerConfig config, OkHttpClient okHttpClient) {
+        return new RemoteSubmitter(config, okHttpClient);
     }
 
     private static void onHalfOpen() {

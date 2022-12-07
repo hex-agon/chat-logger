@@ -11,7 +11,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.ChatMessageType;
+import net.runelite.api.Client;
+import net.runelite.api.FriendsChatManager;
+import net.runelite.api.FriendsChatMember;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.events.ChatMessage;
@@ -21,6 +24,7 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.Text;
+import okhttp3.OkHttpClient;
 import org.slf4j.LoggerFactory;
 
 @Slf4j
@@ -35,6 +39,9 @@ public class ChatLoggerPlugin extends Plugin {
 
     @Inject
     private Client client;
+
+    @Inject
+    private OkHttpClient httpClient;
 
     private RemoteSubmitter remoteSubmitter;
     private Logger publicChatLogger;
@@ -69,7 +76,7 @@ public class ChatLoggerPlugin extends Plugin {
                 shutdownRemoteSubmitter();
             }
             log.debug("Starting a new remoteSubmitter...");
-            remoteSubmitter = RemoteSubmitter.create(config);
+            remoteSubmitter = RemoteSubmitter.create(config, httpClient);
             remoteSubmitter.initialize();
         }
     }
