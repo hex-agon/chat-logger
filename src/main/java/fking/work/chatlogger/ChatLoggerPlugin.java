@@ -169,7 +169,6 @@ public class ChatLoggerPlugin extends Plugin {
                     String chatName = clanChannel.getName();
                     submitToRemote(chatName, event, clanChannelMemberRank(event.getName(), chatName));
                 }
-                break;
             case PRIVATECHAT:
             case MODPRIVATECHAT:
             case PRIVATECHATOUT:
