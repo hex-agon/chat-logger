@@ -167,7 +167,8 @@ public class ChatLoggerPlugin extends Plugin {
                         return;
                     }
                     String chatName = clanChannel.getName();
-                    submitToRemote(chatName, event, clanChannelMemberRank(event.getName(), chatName));
+                    int senderRank = event.getType() == ChatMessageType.CLAN_MESSAGE ? CHANNEL_UNRANKED : clanChannelMemberRank(event.getName(), chatName);
+                    submitToRemote(chatName, event, senderRank);
                 }
                 break;
             case PRIVATECHAT:
