@@ -136,7 +136,7 @@ public class ChatLoggerPlugin extends Plugin {
 
             case FRIENDSCHAT:
                 if (config.logFriendsChat()) {
-                    friendsChatLogger.info("[{}] {}: {}", event.getSender(), event.getName(), event.getMessage());
+                    friendsChatLogger.info("[{}] {}: {}", event.getSender(),nameFormatting(event.getName()), event.getMessage());
                 }
 
                 if (config.remoteSubmitLogFriendsChat() && remoteSubmitter != null) {
@@ -156,7 +156,7 @@ public class ChatLoggerPlugin extends Plugin {
                     if (event.getType() == ChatMessageType.CLAN_MESSAGE) {
                         clanChatLogger.info("{}", event.getMessage());
                     } else {
-                        clanChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                        clanChatLogger.info("{}: {}", nameFormatting(event.getName()), event.getMessage());
                     }
                 }
 
@@ -175,13 +175,13 @@ public class ChatLoggerPlugin extends Plugin {
             case PRIVATECHATOUT:
                 if (config.logPrivateChat()) {
                     String predicate = event.getType() == ChatMessageType.PRIVATECHATOUT ? "To" : "From";
-                    privateChatLogger.info("{} {}: {}", predicate, event.getName(), event.getMessage());
+                    privateChatLogger.info("{} {}: {}", predicate, nameFormatting(event.getName()), event.getMessage());
                 }
                 break;
             case MODCHAT:
             case PUBLICCHAT:
                 if (config.logPublicChat()) {
-                    publicChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                    publicChatLogger.info("{}: {}", nameFormatting(event.getName()), event.getMessage());
                 }
                 break;
         }
@@ -225,5 +225,9 @@ public class ChatLoggerPlugin extends Plugin {
         logger.addAppender(appender);
 
         return logger;
+    }
+
+    private String nameFormatting(String name){
+        return Text.removeFormattingTags(Text.toJagexName(name));
     }
 }
