@@ -65,6 +65,34 @@ public interface ChatLoggerConfig extends Config {
     default boolean logClanChat() {
         return true;
     }
+    
+    @ConfigItem(
+            keyName = "group_iron",
+            name = "Group Iron Chat",
+            description = "Enables logging of the group iron-man chat"
+    )
+    default boolean logGroupChat() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "remoteloggroup",
+            name = "Remote Group Chat",
+            description = "Enables remote submission of the group iron-man chat",
+            section = sectionRemote
+    )
+    default boolean remoteSubmitLogGroupChat() {
+        return false;
+    }
+    
+    @ConfigItem(
+            keyName = "archive_count",
+            name = "Archive Count",
+            description = "Number of archived days of chat to save (0 for infinite)"
+    )
+    default int archiveCount() {
+        return 30;
+    }
 
     @ConfigItem(
             keyName = "remotelogclan",

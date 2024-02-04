@@ -12,10 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.FriendsChatManager;
-import net.runelite.api.FriendsChatMember;
+import net.runelite.api.*;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.events.ChatMessage;
@@ -52,6 +49,7 @@ public class ChatLoggerPlugin extends Plugin {
     private Logger privateChatLogger;
     private Logger friendsChatLogger;
     private Logger clanChatLogger;
+    private Logger groupChatLogger;
 
     @Provides
     ChatLoggerConfig provideConfig(ConfigManager configManager) {
@@ -64,6 +62,7 @@ public class ChatLoggerPlugin extends Plugin {
         privateChatLogger = setupLogger("PrivateChatLogger", "private");
         friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
         clanChatLogger = setupLogger("ClanChatLogger", "clan");
+        groupChatLogger = setupLogger("GroupChatLogger", "group");
         startRemoteSubmitter();
     }
 
@@ -133,6 +132,21 @@ public class ChatLoggerPlugin extends Plugin {
     @Subscribe
     public void onChatMessage(ChatMessage event) {
         switch (event.getType()) {
+            case CLAN_GIM_CHAT:
+            case CLAN_GIM_MESSAGE:
+            case CLAN_GIM_FORM_GROUP:
+            case CLAN_GIM_GROUP_WITH:
+                if (config.logGroupChat()) {
+                    if (event.getType() == ChatMessageType.CLAN_GIM_MESSAGE) {
+                        groupChatLogger.info("{}", event.getMessage());
+                    } else {
+                        groupChatLogger.info("{}: {}", event.getName(), event.getMessage());
+                    }
+                }
+                
+                if (config.remoteSubmitLogGroupChat() && remoteSubmitter != null) {
+                    submitToRemote("groupiron", event, CHANNEL_UNRANKED);
+                }
 
             case FRIENDSCHAT:
                 if (config.logFriendsChat()) {
@@ -212,7 +226,7 @@ public class ChatLoggerPlugin extends Plugin {
         logFilePolicy.setContext(context);
         logFilePolicy.setParent(appender);
         logFilePolicy.setFileNamePattern(directory + "chatlog_%d{yyyy-MM-dd}.log");
-        logFilePolicy.setMaxHistory(30);
+        logFilePolicy.setMaxHistory(config.archiveCount());
         logFilePolicy.start();
 
         appender.setRollingPolicy(logFilePolicy);
