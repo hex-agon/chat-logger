@@ -1,6 +1,6 @@
 # Chat Logger
-This plugin allows logging chat messages from different channels to individual files. Currently, the plugin supports public, private and clan channels and each can be toggled on/off individually.
-The log file rotation happens on a daily basis and up to 7 log files are kept.
+This plugin allows logging chat messages from different channels to individual files. Currently, the plugin supports public, group, game, private and clan channels and each can be toggled on/off individually.
+The log file rotation happens on a daily basis and up to 30 log files are kept. However, this can be changed from the plugin's settings.
 
 The logs can be found at RuneLite's home folder under the `chatlogs` directory. To find runelite's home navigate to `%userprofile%\.runelite` on Windows or `$HOME/.runelite` on Linux and macOS.
 
@@ -12,6 +12,8 @@ The plugin uses the following directory structure:
     ├── friends/
     ├── private/
     ├── public/
+    ├── group/
+    ├── game/
     └── clan/
 ```
 
