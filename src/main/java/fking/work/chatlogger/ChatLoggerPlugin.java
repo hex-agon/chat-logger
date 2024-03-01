@@ -1,21 +1,23 @@
 package fking.work.chatlogger;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.inject.Inject;
+import com.google.inject.Provides;
+
+import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
-import com.google.gson.Gson;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
 import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
-import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.*;
+import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -23,13 +25,12 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.Text;
 import okhttp3.OkHttpClient;
-import org.slf4j.LoggerFactory;
 
 @Slf4j
 @PluginDescriptor(name = "Chat Logger", description = "Logs chat messages to a file")
 public class ChatLoggerPlugin extends Plugin {
 
-    private static final String BASE_DIRECTORY = System.getProperty("user.home") + "/.runelite/chatlogs/";
+    private static final String BASE_DIRECTORY = RuneLite.RUNELITE_DIR + "/chatlogs/";
     private static final int CHANNEL_UNRANKED = -2;
 
     @Inject
@@ -50,6 +51,9 @@ public class ChatLoggerPlugin extends Plugin {
     private Logger friendsChatLogger;
     private Logger clanChatLogger;
     private Logger groupChatLogger;
+    private Logger gameChatLogger;
+
+    private boolean can_load = false;
 
     @Provides
     ChatLoggerConfig provideConfig(ConfigManager configManager) {
@@ -58,17 +62,47 @@ public class ChatLoggerPlugin extends Plugin {
 
     @Override
     protected void startUp() {
-        publicChatLogger = setupLogger("PublicChatLogger", "public");
-        privateChatLogger = setupLogger("PrivateChatLogger", "private");
-        friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
-        clanChatLogger = setupLogger("ClanChatLogger", "clan");
-        groupChatLogger = setupLogger("GroupChatLogger", "group");
         startRemoteSubmitter();
+        // If plugin enabled while logged in
+        if(client.getGameState().equals(GameState.LOGGED_IN)){
+            triggerInit();
+        }
     }
 
     @Override
     protected void shutDown() {
         shutdownRemoteSubmitter();
+    }
+
+    @Subscribe
+    public void onGameStateChanged(GameStateChanged event) {
+        if (event.getGameState().equals(GameState.LOGGED_IN)) {
+            // SO this actually fires BEFORE the player is fully logged in.. sooo we know it
+            // is about to happen
+            triggerInit();
+        }
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick tick) {
+        // If we are logging per player, wait until we have the player login name
+        if (can_load && (!config.logChatPerUser() || client.getLocalPlayer().getName() != null)) {
+            initLoggers();
+            can_load = false;
+        }
+    }
+
+    private void triggerInit() {
+        can_load = true;
+    }
+
+    private void initLoggers() {
+        publicChatLogger = setupLogger("PublicChatLogger", "public");
+        privateChatLogger = setupLogger("PrivateChatLogger", "private");
+        friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
+        clanChatLogger = setupLogger("ClanChatLogger", "clan");
+        groupChatLogger = setupLogger("GroupChatLogger", "group");
+        gameChatLogger = setupLogger("GameChatLogger", "group");
     }
 
     private void startRemoteSubmitter() {
@@ -126,6 +160,10 @@ public class ChatLoggerPlugin extends Plugin {
         if (!ChatLoggerConfig.GROUP_NAME.equals(event.getGroup())) {
             return;
         }
+        // If we need to reload loggers
+        if (event.getKey().equals("per_user") || event.getKey().equals("archive_count")) {
+            triggerInit();
+        }
         startRemoteSubmitter();
     }
 
@@ -162,6 +200,13 @@ public class ChatLoggerPlugin extends Plugin {
                     String owner = friendsChatManager.getOwner();
                     submitToRemote(owner, event, friendsChatMemberRank(event.getName()));
                 }
+                break;
+
+            case GAMEMESSAGE:
+                if (config.logGameChat()) {
+                    gameChatLogger.info(event.getMessage());
+                }
+
                 break;
             case CLAN_CHAT:
             case CLAN_GUEST_CHAT:
@@ -214,7 +259,13 @@ public class ChatLoggerPlugin extends Plugin {
         encoder.setPattern("%d{HH:mm:ss} %msg%n");
         encoder.start();
 
-        String directory = BASE_DIRECTORY + subFolder + "/";
+        String directory = BASE_DIRECTORY;
+
+        if (config.logChatPerUser()) {
+            directory += client.getLocalPlayer().getName() + "/";
+        }
+
+        directory += subFolder + "/";
 
         RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<>();
         appender.setFile(directory + "latest.log");
