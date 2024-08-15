@@ -141,7 +141,7 @@ public class ChatLoggerPlugin extends Plugin {
         if (clanChannel != null) {
             ClanChannelMember member = clanChannel.findMember(cleanName);
             if (member != null && clanChannel.getName().equals(clanName)) {
-                return member.getRank().ordinal();
+                return member.getRank().getRank();
             }
         }
         clanChannel = client.getGuestClanChannel();
@@ -149,7 +149,7 @@ public class ChatLoggerPlugin extends Plugin {
         if (clanChannel != null) {
             ClanChannelMember member = clanChannel.findMember(cleanName);
             if (member != null && clanChannel.getName().equals(clanName)) {
-                return member.getRank().ordinal();
+                return member.getRank().getRank();
             }
         }
         return CHANNEL_UNRANKED;

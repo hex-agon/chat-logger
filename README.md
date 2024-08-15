@@ -66,6 +66,9 @@ This header **should** be used for user authentication.
 
 ### Updates
 
+### V1.8
+- Fix compatibility with the latest client changes. The behaviour of the `rank` field might change with this update.
+
 ##### V1.6
 - Fixes private logs containing clan messages
 
