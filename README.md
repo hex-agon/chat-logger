@@ -66,7 +66,10 @@ This header **should** be used for user authentication.
 
 ### Updates
 
-### V1.8
+### V1.8.1
+- Fixed incorrect folder mapping for game log output.
+
+##### V1.8
 - Fix compatibility with the latest client changes. The behaviour of the `rank` field might change with this update.
 
 ##### V1.6
