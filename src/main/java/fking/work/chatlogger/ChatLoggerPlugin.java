@@ -102,7 +102,7 @@ public class ChatLoggerPlugin extends Plugin {
         friendsChatLogger = setupLogger("FriendsChatLogger", "friends");
         clanChatLogger = setupLogger("ClanChatLogger", "clan");
         groupChatLogger = setupLogger("GroupChatLogger", "group");
-        gameChatLogger = setupLogger("GameChatLogger", "group");
+        gameChatLogger = setupLogger("GameChatLogger", "game");
     }
 
     private void startRemoteSubmitter() {
