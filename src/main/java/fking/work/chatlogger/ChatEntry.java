@@ -29,7 +29,7 @@ public class ChatEntry {
     }
 
     public static ChatEntry from(long messageId, ChatType chatType, String chatName, int rank, ChatMessage chatMessage) {
-        String sender = chatMessage.getName().isEmpty() ? chatName : Text.removeFormattingTags(chatMessage.getName());
+        String sender = chatMessage.getName().isEmpty() ? chatName : Text.removeFormattingTags(Text.toJagexName(chatMessage.getName()));
         return new ChatEntry(messageId, chatType, Text.standardize(chatName), sender, rank, chatMessage.getMessage());
     }
 
