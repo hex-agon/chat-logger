@@ -11,7 +11,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
-import fking.work.chatlogger.ChatEntry.ChatType;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.clan.ClanChannel;
@@ -248,7 +247,7 @@ public class ChatLoggerPlugin extends Plugin {
 
     private void submitToRemote(String channelName, ChatMessage event, int rank) {
         long messageId = CrossWorldMessages.latestId(client);
-        remoteSubmitter.queue(ChatEntry.from(messageId, ChatType.CLAN, channelName, rank, event));
+        remoteSubmitter.queue(ChatEntry.from(messageId, event.getType(), channelName, rank, event));
     }
 
     private Logger setupLogger(String loggerName, String subFolder) {
