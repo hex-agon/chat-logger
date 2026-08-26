@@ -171,6 +171,12 @@ public class ChatLoggerPlugin extends Plugin {
 
     @Subscribe
     public void onChatMessage(ChatMessage event) {
+        // Loggers are created on the first game tick after login; other plugins can post
+        // chat messages before that (e.g. welcome messages), so ignore them until ready.
+        if (gameChatLogger == null) {
+            return;
+        }
+
         switch (event.getType()) {
             case CLAN_GIM_CHAT:
             case CLAN_GIM_MESSAGE:
@@ -213,7 +219,7 @@ public class ChatLoggerPlugin extends Plugin {
             case CONSOLE:
                 // Console messages are emitted by other plugins (e.g. NPC Dialog Log) and
                 // usually contain RuneLite colour tags, so strip them before logging.
-                if (config.logConsoleChat() && consoleChatLogger != null) {
+                if (config.logConsoleChat()) {
                     consoleChatLogger.info(Text.removeTags(event.getMessage()));
                 }
 
