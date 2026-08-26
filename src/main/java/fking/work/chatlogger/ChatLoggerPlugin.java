@@ -52,6 +52,7 @@ public class ChatLoggerPlugin extends Plugin {
     private Logger clanChatLogger;
     private Logger groupChatLogger;
     private Logger gameChatLogger;
+    private Logger consoleChatLogger;
 
     private boolean can_load = false;
 
@@ -103,6 +104,7 @@ public class ChatLoggerPlugin extends Plugin {
         clanChatLogger = setupLogger("ClanChatLogger", "clan");
         groupChatLogger = setupLogger("GroupChatLogger", "group");
         gameChatLogger = setupLogger("GameChatLogger", "game");
+        consoleChatLogger = setupLogger("ConsoleChatLogger", "console");
     }
 
     private void startRemoteSubmitter() {
@@ -205,6 +207,14 @@ public class ChatLoggerPlugin extends Plugin {
             case GAMEMESSAGE:
                 if (config.logGameChat()) {
                     gameChatLogger.info(event.getMessage());
+                }
+
+                break;
+            case CONSOLE:
+                // Console messages are emitted by other plugins (e.g. NPC Dialog Log) and
+                // usually contain RuneLite colour tags, so strip them before logging.
+                if (config.logConsoleChat() && consoleChatLogger != null) {
+                    consoleChatLogger.info(Text.removeTags(event.getMessage()));
                 }
 
                 break;
