@@ -95,6 +95,16 @@ public interface ChatLoggerConfig extends Config {
         return true;
     }
 
+    @ConfigItem(
+        section = CHANNEL_SECT,
+        keyName = "console",
+        name = "Console Chat",
+        description = "Enables logging of console messages sent by other plugins (e.g. NPC Dialog Log)"
+    )
+    default boolean logConsoleChat() {
+        return false;
+    }
+
 
     // Logging Config
     

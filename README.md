@@ -1,5 +1,5 @@
 # Chat Logger
-This plugin allows logging chat messages from different channels to individual files. Currently, the plugin supports public, group, game, private and clan channels and each can be toggled on/off individually.
+This plugin allows logging chat messages from different channels to individual files. Currently, the plugin supports public, group, game, private, clan and console channels and each can be toggled on/off individually.
 The log file rotation happens on a daily basis and up to 30 log files are kept. However, this can be changed from the plugin's settings.
 
 The logs can be found at RuneLite's home folder under the `chatlogs` directory. To find runelite's home navigate to `%userprofile%\.runelite` on Windows or `$HOME/.runelite` on Linux and macOS.
@@ -14,8 +14,11 @@ The plugin uses the following directory structure:
     ├── public/
     ├── group/
     ├── game/
-    └── clan/
+    ├── clan/
+    └── console/
 ```
+
+The **console** folder contains messages other plugins print to the chatbox, such as NPC dialog captured by the [NPC Dialog Log](https://github.com/neilrush/npc-dialog-log) plugin.
 
 Note that the **friends** folder contains the **clan chat** logs and the **private** folder contains **private messages** from friends.
 
@@ -65,6 +68,9 @@ The plugin will also always submit an `Authorization` header, the value `none` w
 This header **should** be used for user authentication.
 
 ### Updates
+
+### V1.9
+- Added console channel logging, which captures messages printed by other plugins such as NPC Dialog Log.
 
 ### V1.8.1
 - Fixed incorrect folder mapping for game log output.

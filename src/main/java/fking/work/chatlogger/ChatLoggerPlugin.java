@@ -52,6 +52,7 @@ public class ChatLoggerPlugin extends Plugin {
     private Logger clanChatLogger;
     private Logger groupChatLogger;
     private Logger gameChatLogger;
+    private Logger consoleChatLogger;
 
     private boolean can_load = false;
 
@@ -103,6 +104,7 @@ public class ChatLoggerPlugin extends Plugin {
         clanChatLogger = setupLogger("ClanChatLogger", "clan");
         groupChatLogger = setupLogger("GroupChatLogger", "group");
         gameChatLogger = setupLogger("GameChatLogger", "game");
+        consoleChatLogger = setupLogger("ConsoleChatLogger", "console");
     }
 
     private void startRemoteSubmitter() {
@@ -169,6 +171,12 @@ public class ChatLoggerPlugin extends Plugin {
 
     @Subscribe
     public void onChatMessage(ChatMessage event) {
+        // Loggers are created on the first game tick after login; other plugins can post
+        // chat messages before that (e.g. welcome messages), so ignore them until ready.
+        if (gameChatLogger == null) {
+            return;
+        }
+
         switch (event.getType()) {
             case CLAN_GIM_CHAT:
             case CLAN_GIM_MESSAGE:
@@ -205,6 +213,18 @@ public class ChatLoggerPlugin extends Plugin {
             case GAMEMESSAGE:
                 if (config.logGameChat()) {
                     gameChatLogger.info(event.getMessage());
+                }
+
+                break;
+            case SPAM:
+                // Skilling / consumable results ("You just mined a ruby.", "You eat the
+                // shark.") are SPAM, not GAMEMESSAGE. Rolled into the console log so a
+                // single tail sees dialogue, object responses and skilling results.
+            case CONSOLE:
+                // Console messages are emitted by other plugins (e.g. NPC Dialog Log) and
+                // usually contain RuneLite colour tags, so strip them before logging.
+                if (config.logConsoleChat()) {
+                    consoleChatLogger.info(Text.removeTags(event.getMessage()));
                 }
 
                 break;
