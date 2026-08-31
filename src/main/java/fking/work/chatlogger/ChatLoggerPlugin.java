@@ -216,6 +216,10 @@ public class ChatLoggerPlugin extends Plugin {
                 }
 
                 break;
+            case SPAM:
+                // Skilling / consumable results ("You just mined a ruby.", "You eat the
+                // shark.") are SPAM, not GAMEMESSAGE. Rolled into the console log so a
+                // single tail sees dialogue, object responses and skilling results.
             case CONSOLE:
                 // Console messages are emitted by other plugins (e.g. NPC Dialog Log) and
                 // usually contain RuneLite colour tags, so strip them before logging.
